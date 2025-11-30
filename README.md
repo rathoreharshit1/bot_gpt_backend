@@ -36,7 +36,6 @@ streamlit run app.py
 ```
 
 ## Features
-
 - ✅ Open chat mode (standard AI chat)
 - ✅ RAG mode (chat with documents)
 - ✅ PDF/TXT upload and processing

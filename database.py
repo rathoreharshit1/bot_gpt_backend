@@ -25,10 +25,7 @@ async def get_db():
 def new_id():
     return str(uuid.uuid4())
 
-# =============================================================================
 # MODELS
-# =============================================================================
-
 class User(Base):
     __tablename__ = "users"
     
@@ -46,7 +43,7 @@ class Conversation(Base):
     
     id = Column(String, primary_key=True, default=new_id)
     user_id = Column(String, ForeignKey("users.id"), nullable=False)
-    mode = Column(String, default="open")  # open or rag
+    mode = Column(String, default="open")
     title = Column(String)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
@@ -62,7 +59,7 @@ class Message(Base):
     
     id = Column(String, primary_key=True, default=new_id)
     conversation_id = Column(String, ForeignKey("conversations.id"), nullable=False)
-    role = Column(String)  # user or assistant
+    role = Column(String) 
     content = Column(Text, nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
     tokens = Column(Integer, default=0)

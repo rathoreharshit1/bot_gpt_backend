@@ -13,11 +13,9 @@ embed_model = SentenceTransformer('all-MiniLM-L6-v2')
 
 
 class LLMService:
-    """Handles all LLM operations"""
     
     @staticmethod
     async def chat(messages: List[dict], max_tokens: int = 300) -> dict:
-        """Send chat request to Groq"""
         payload = {
             "model": MODEL,
             "messages": messages,
@@ -42,18 +40,15 @@ class LLMService:
     
     @staticmethod
     def embed(text: str) -> List[float]:
-        """Generate embeddings using local model"""
         if len(text) > 8000:
             text = text[:8000]
         return embed_model.encode(text, convert_to_tensor=False).tolist()
 
 
 class RAGService:
-    """Handles document chunking and retrieval"""
     
     @staticmethod
     def chunk_text(text: str, size: int = 500) -> List[str]:
-        """Split text into chunks"""
         words = text.split()
         chunks = []
         current = []
@@ -71,7 +66,6 @@ class RAGService:
     
     @staticmethod
     def cosine_similarity(vec1: List[float], vec2: List[float]) -> float:
-        """Calculate similarity between vectors"""
         dot = sum(a * b for a, b in zip(vec1, vec2))
         norm1 = math.sqrt(sum(a * a for a in vec1))
         norm2 = math.sqrt(sum(b * b for b in vec2))
@@ -79,7 +73,6 @@ class RAGService:
     
     @staticmethod
     async def retrieve_chunks(db, document_ids: List[str], query: str, top_k: int = 3) -> List[str]:
-        """Retrieve relevant chunks for RAG"""
         from sqlalchemy import select
         from database import DocumentChunk
         

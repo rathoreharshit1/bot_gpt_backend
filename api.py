@@ -29,10 +29,7 @@ app.add_middleware(
 async def startup():
     await init_db()
 
-# =============================================================================
 # SCHEMAS
-# =============================================================================
-
 class UserCreate(BaseModel):
     name: str
     email: str
@@ -45,13 +42,10 @@ class ConversationCreate(BaseModel):
 class MessageCreate(BaseModel):
     content: str
 
-# =============================================================================
-# USER ROUTES
-# =============================================================================
 
+# USER ROUTES
 @app.post("/users")
 async def create_user(data: UserCreate, db: AsyncSession = Depends(get_db)):
-    """Create new user"""
     # Check if exists
     result = await db.execute(select(User).where(User.email == data.email))
     if result.scalar_one_or_none():
@@ -66,7 +60,6 @@ async def create_user(data: UserCreate, db: AsyncSession = Depends(get_db)):
 
 @app.get("/users")
 async def list_users(db: AsyncSession = Depends(get_db)):
-    """List all users"""
     result = await db.execute(select(User))
     users = result.scalars().all()
     
@@ -77,13 +70,10 @@ async def list_users(db: AsyncSession = Depends(get_db)):
         ]
     }
 
-# =============================================================================
-# CONVERSATION ROUTES
-# =============================================================================
 
+# CONVERSATION ROUTES
 @app.post("/conversations")
 async def create_conversation(data: ConversationCreate, db: AsyncSession = Depends(get_db)):
-    """Start new conversation"""
     # Create conversation
     title = data.first_message[:50] + ("..." if len(data.first_message) > 50 else "")
     conv = Conversation(
@@ -129,7 +119,6 @@ async def create_conversation(data: ConversationCreate, db: AsyncSession = Depen
 
 @app.post("/conversations/{conv_id}/messages")
 async def add_message(conv_id: str, data: MessageCreate, db: AsyncSession = Depends(get_db)):
-    """Add message to conversation"""
     # Get conversation
     result = await db.execute(select(Conversation).where(Conversation.id == conv_id))
     conv = result.scalar_one_or_none()
@@ -193,7 +182,6 @@ async def add_message(conv_id: str, data: MessageCreate, db: AsyncSession = Depe
 
 @app.get("/conversations")
 async def list_conversations(user_id: str, db: AsyncSession = Depends(get_db)):
-    """List user's conversations"""
     result = await db.execute(
         select(Conversation)
         .where(Conversation.user_id == user_id)
@@ -216,7 +204,6 @@ async def list_conversations(user_id: str, db: AsyncSession = Depends(get_db)):
 
 @app.get("/conversations/{conv_id}")
 async def get_conversation(conv_id: str, db: AsyncSession = Depends(get_db)):
-    """Get conversation with messages"""
     result = await db.execute(select(Conversation).where(Conversation.id == conv_id))
     conv = result.scalar_one_or_none()
     if not conv:
@@ -234,7 +221,6 @@ async def get_conversation(conv_id: str, db: AsyncSession = Depends(get_db)):
 
 @app.delete("/conversations/{conv_id}")
 async def delete_conversation(conv_id: str, db: AsyncSession = Depends(get_db)):
-    """Delete conversation"""
     result = await db.execute(select(Conversation).where(Conversation.id == conv_id))
     conv = result.scalar_one_or_none()
     if conv:
@@ -242,13 +228,10 @@ async def delete_conversation(conv_id: str, db: AsyncSession = Depends(get_db)):
         await db.commit()
     return {"status": "deleted"}
 
-# =============================================================================
-# DOCUMENT ROUTES
-# =============================================================================
 
+# DOCUMENT ROUTES
 @app.post("/documents/upload")
 async def upload_document(file: UploadFile = File(...), db: AsyncSession = Depends(get_db)):
-    """Upload and process document"""
     # Extract text
     content = await file.read()
     
@@ -294,7 +277,6 @@ async def upload_document(file: UploadFile = File(...), db: AsyncSession = Depen
 
 @app.get("/documents")
 async def list_documents(user_id: str, db: AsyncSession = Depends(get_db)):
-    """List user's documents"""
     result = await db.execute(select(Document).where(Document.user_id == user_id))
     docs = result.scalars().all()
     
@@ -310,7 +292,6 @@ async def list_documents(user_id: str, db: AsyncSession = Depends(get_db)):
 
 @app.delete("/documents/{doc_id}")
 async def delete_document(doc_id: str, db: AsyncSession = Depends(get_db)):
-    """Delete document"""
     result = await db.execute(select(Document).where(Document.id == doc_id))
     doc = result.scalar_one_or_none()
     if doc:
@@ -320,7 +301,6 @@ async def delete_document(doc_id: str, db: AsyncSession = Depends(get_db)):
 
 @app.post("/conversations/{conv_id}/attach_document")
 async def attach_document(conv_id: str, document_id: str, db: AsyncSession = Depends(get_db)):
-    """Attach document to conversation"""
     # Check if already linked
     result = await db.execute(
         select(ConversationDocument).where(
